@@ -1,6 +1,6 @@
 import numpy as np
 from functools import partial
-
+from nuscenes.utils.geometry_utils import points_in_box
 def multi_apply(func, *args, **kwargs):
     pfunc = partial(func, **kwargs) if kwargs else func
     map_results = map(pfunc, *args)
@@ -41,7 +41,6 @@ def transform(points, rotate_matrix: np.ndarray, translation_matrix, inverse=Fal
         points = translate(points, -translation_matrix)
         points = rotate(points, np.linalg.inv(rotate_matrix))
     return points
-
 
 def remove_close(points, radius: tuple=(1.0, 1.5)):
     """
