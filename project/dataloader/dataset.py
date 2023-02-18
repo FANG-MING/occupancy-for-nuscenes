@@ -6,7 +6,8 @@ import pickle
 from mmcv.image.io import imread
 
 class SemKITTI_nusc(data.Dataset):
-    def __init__(self, data_path, imageset='train', label_mapping="nuscenes.yaml", nusc=None):
+    def __init__(self, data_path, imageset='train', label_mapping="nuscenes.yaml",
+                  nusc=None, occupancy_root='./data/nuscenes/samples/occupancy'):
         with open(imageset, 'rb') as f:
             data = pickle.load(f)
 
