@@ -5,8 +5,9 @@
 
 # Prediction
 <img src="./assets/prediction.gif" width="696px">
+
 ## Evaluation Metrics
-Leaderboard ranking for this challenge is by the intersection-over-union (mIoU) over all classes. 
+
 
 ### mIoU
 
