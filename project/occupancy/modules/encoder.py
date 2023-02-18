@@ -1,4 +1,4 @@
-from .custom_base_transformer_layer import TPVMyCustomBaseTransformerLayer
+from .custom_base_transformer_layer import OccMyCustomBaseTransformerLayer
 import copy, warnings
 from mmcv.cnn.bricks.registry import (TRANSFORMER_LAYER,
                                       TRANSFORMER_LAYER_SEQUENCE)
@@ -31,7 +31,7 @@ class OccFormerEncoder(TransformerLayerSequence):
         super().__init__(*args, **kwargs)
         self.return_intermediate = return_intermediate
 
-        self.bev_h, self.bev_w, self.bev_z = bev_h, bev_w
+        self.bev_h, self.bev_w = bev_h, bev_w
         self.num_points_in_pillar = num_points_in_pillar
         self.pc_range = pc_range
         self.fp16_enabled = False
@@ -209,7 +209,7 @@ class OccFormerEncoder(TransformerLayerSequence):
 
 
 @TRANSFORMER_LAYER.register_module()
-class OccFormerLayer(TPVMyCustomBaseTransformerLayer):
+class OccFormerLayer(OccMyCustomBaseTransformerLayer):
     """Implements decoder layer in DETR transformer.
     Args:
         attn_cfgs (list[`mmcv.ConfigDict`] | list[dict] | dict )):

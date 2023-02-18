@@ -1,4 +1,4 @@
-from tpvformer04 import *
+from occupancy import *
 from mmseg.models import build_segmentor
 
 def build(model_config):

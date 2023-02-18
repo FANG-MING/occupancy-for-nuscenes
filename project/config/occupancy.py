@@ -33,10 +33,10 @@ num_points_in_pillar = bev_z_
 nbr_class = 18
 
 model = dict(
-    type='TPVFormer',
+    type='OccFormer',
     use_grid_mask=True,
     fusion_head = dict(
-        type='TPVFuser',
+        type='OccFuser',
         bev_h=bev_h_,
         bev_w=bev_w_,
         bev_z=bev_z_,

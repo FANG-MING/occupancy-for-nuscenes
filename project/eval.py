@@ -55,13 +55,12 @@ def main(local_rank, args):
         import builtins
         builtins.print = pass_print
 
-    logger_name = 'mmseg'
-    logger = get_root_logger(log_file=None, log_level='INFO', name=logger_name)
+    logger = get_root_logger(log_file=None, log_level='INFO')
     logger.info(f'Config:\n{cfg.pretty_text}')
 
     # build model
     if cfg.get('occupancy', False):
-        from builder import tpv_occupancy_builder as model_builder
+        from builder import occ_occupancy_builder as model_builder
     else:
         from builder import tpv_lidarseg_builder as model_builder
     
@@ -137,16 +136,12 @@ def main(local_rank, args):
                 vox_label, ignore=ignore_label
             ) + loss_func(predict_labels_vox.detach(), vox_label)
             
-            # predict_labels_pts = predict_labels_pts.squeeze(-1).squeeze(-1)
-            # predict_labels_pts = torch.argmax(predict_labels_pts, dim=1) # bs, n
-            # predict_labels_pts = predict_labels_pts.detach().cpu()
-            # val_pt_labs = val_pt_labs.squeeze(-1).cpu()
+
             
             predict_labels_vox = torch.argmax(predict_labels_vox, dim=1)
             predict_labels_vox = predict_labels_vox.detach().cpu()
 
             for count in range(len(img_metas)):
-                # CalMeanIou_pts._after_step(predict_labels_pts[count], val_pt_labs[count])
                 CalMeanIou_vox._after_step(
                     predict_labels_vox[count].flatten(),
                     val_vox_label[count].flatten())
@@ -155,12 +150,10 @@ def main(local_rank, args):
                 logger.info('[EVAL] Iter %5d: Loss: %.3f (%.3f)'%(
                     i_iter_val, loss.item(), np.mean(val_loss_list)))
     
-    # val_miou_pts = CalMeanIou_pts._after_epoch()
     val_miou_vox = CalMeanIou_vox._after_epoch()
 
     del val_vox_label, val_grid
 
-    # logger.info('Current val miou pts is %.3f' % (val_miou_pts))
     logger.info('Current val miou vox is %.3f' % (val_miou_vox))
     logger.info('Current val loss is %.3f' % (np.mean(val_loss_list)))
         
@@ -168,9 +161,7 @@ def main(local_rank, args):
 if __name__ == '__main__':
     # Eval settings
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--py-config', default='config/tpv_lidarseg.py')
-    parser.add_argument('--lovasz-input', type=str, default='voxel')
-    parser.add_argument('--ce-input', type=str, default='voxel')
+    parser.add_argument('--py-config', default='config/occupancy.py')
     parser.add_argument('--ckpt-path', type=str, default='')
 
     args = parser.parse_args()

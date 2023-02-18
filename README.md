@@ -3,10 +3,11 @@
 # Dadaset
 <img src="./assets/demo.gif" width="696px">
 
-# A demo of it
+# Prediction
 <img src="./assets/prediction.gif" width="696px">
 ## Evaluation Metrics
 Leaderboard ranking for this challenge is by the intersection-over-union (mIoU) over all classes. 
+
 ### mIoU
 
 Let $C$ be he number of classes. 
@@ -16,12 +17,8 @@ $$
 $$
 
 where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, false positive, and false negative predictions for class $c_i$.
+### Results
 
-### F1 Score
-We also measure the F-score as the harmonic mean of the completeness $P_c$ and the accuracy $P_a$.
-
-$$
-    F-score=\left( \frac{P_a^{-1}+P_c^{-1}}{2} \right) ^{-1} ,
-$$
-
-where $P_a$ is the percentage of predicted voxels that are within a distance threshold to the ground truth voxels, and $P_c$ is the percentage of ground truth voxels that are within a distance threshold to the predicted voxels.
+| barrier | bicycle | bus | car | construction_vehicle | motorcycle | pedestrian | traffic_cone | trailer |  truck | driveable_surface | other_flat | sidewalk | terrain | manmade | vegetation |  miou |
+| -- | --|--| -- | --|--|--|--|--|--|--|--| --|----------------------|---|------ | -------------------------------- |
+| 15.12 | 8.55 | 28.78 | 28.06 | 10.36 | 13.42 | 9.22 | 4.57 | 17.38 | 22.56 | 48.38 | 22.57 | 29.11 | 25.81 | 16.22 |20.77 | 20.056  

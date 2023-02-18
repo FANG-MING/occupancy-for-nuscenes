@@ -79,7 +79,7 @@ class OccFormer(BaseModule):
             img_feats_reshaped.append(img_feat.view(B, int(BN / B), C, H, W))
         return img_feats_reshaped
 
-    @auto_fp16(apply_to=('img', 'points'))
+    @auto_fp16(apply_to=('img'))
     def forward(self,
                 img_metas=None,
                 img=None,

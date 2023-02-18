@@ -13,7 +13,7 @@ from mmcv import Config
 from mmcv.runner import build_optimizer
 from mmseg.utils import get_root_logger
 from timm.scheduler import CosineLRScheduler
-
+from builder import occ_occupancy_builder as model_builder
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -67,15 +67,12 @@ def main(local_rank, args):
 
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
     log_file = osp.join(args.work_dir, f'{timestamp}.log')
-    logger_name = 'mmseg'
-    logger = get_root_logger(log_file=log_file, log_level='INFO', name=logger_name)
+    logger = get_root_logger(log_file=log_file, log_level='INFO')
     logger.info(f'Config:\n{cfg.pretty_text}')
 
     # build model
-    if cfg.get('occupancy', False):
-        from builder import tpv_occupancy_builder as model_builder
-    else:
-        from builder import tpv_lidarseg_builder as model_builder
+
+
     
     my_model = model_builder.build(cfg.model)
     n_parameters = sum(p.numel() for p in my_model.parameters() if p.requires_grad)
@@ -127,11 +124,10 @@ def main(local_rank, args):
     )
     
     CalMeanIou_vox = MeanIoU(unique_label, ignore_label, unique_label_str, 'vox')
-    CalMeanIou_pts = MeanIoU(unique_label, ignore_label, unique_label_str, 'pts')
     
     # resume and load
     epoch = 0
-    best_val_miou_pts, best_val_miou_vox = 0, 0
+    best_val_miou_vox = 0, 0
     global_iter = 0
 
     cfg.resume_from = ''
@@ -150,10 +146,6 @@ def main(local_rank, args):
         optimizer.load_state_dict(ckpt['optimizer'])
         scheduler.load_state_dict(ckpt['scheduler'])
         epoch = ckpt['epoch']
-        if 'best_val_miou_pts' in ckpt:
-            best_val_miou_pts = ckpt['best_val_miou_pts']
-        elif 'best_val_miou' in ckpt:
-            best_val_miou_pts = ckpt['best_val_miou']
         if 'best_val_miou_vox' in ckpt:
             best_val_miou_vox = ckpt['best_val_miou_vox']
         global_iter = ckpt['global_iter']
@@ -185,31 +177,16 @@ def main(local_rank, args):
         for i_iter, (imgs, img_metas, train_vox_label, train_grid, train_pt_labs) in enumerate(train_dataset_loader):
             
             imgs = imgs.cuda()
-            train_grid = train_grid.to(torch.float32).cuda()
-            if args.lovasz_input == 'voxel' or args.ce_input == 'voxel':
-                voxel_label = train_vox_label.type(torch.LongTensor).cuda()
-            if args.lovasz_input == 'points' or args.ce_input == 'points':
-                train_pt_labs = train_pt_labs.cuda()
+            voxel_label = train_vox_label.type(torch.LongTensor).cuda()
             # forward + backward + optimize
             data_time_e = time.time()
-            outputs_vox, outputs_pts = my_model(img=imgs, img_metas=img_metas, points=train_grid)
-            if args.lovasz_input == 'voxel':
-                lovasz_input = outputs_vox
-                lovasz_label = voxel_label
-            else:
-                lovasz_input = outputs_pts
-                lovasz_label = train_pt_labs
-            if args.ce_input == 'voxel':
-                ce_input = outputs_vox
-                ce_label = voxel_label
-            else:
-                ce_input = outputs_pts.squeeze(-1).squeeze(-1)
-                ce_label = train_pt_labs.squeeze(-1)
+            outputs_vox = my_model(img=imgs, img_metas=img_metas)
+
 
             loss = lovasz_softmax(
-                torch.nn.functional.softmax(lovasz_input, dim=1), 
-                lovasz_label, ignore=ignore_label
-            ) + loss_func(ce_input, ce_label)
+                torch.nn.functional.softmax(outputs_vox, dim=1), 
+                voxel_label, ignore=ignore_label
+            ) + loss_func(outputs_vox, voxel_label)
 
             optimizer.zero_grad()
             loss.backward()
@@ -238,7 +215,6 @@ def main(local_rank, args):
                 'scheduler': scheduler.state_dict(),
                 'epoch': epoch + 1,
                 'global_iter': global_iter,
-                'best_val_miou_pts': best_val_miou_pts,
                 'best_val_miou_vox': best_val_miou_vox
             }
             save_file_name = os.path.join(os.path.abspath(args.work_dir), f'epoch_{epoch+1}.pth')
@@ -251,46 +227,25 @@ def main(local_rank, args):
         # eval
         my_model.eval()
         val_loss_list = []
-        CalMeanIou_pts.reset()
         CalMeanIou_vox.reset()
 
         with torch.no_grad():
             for i_iter_val, (imgs, img_metas, val_vox_label, val_grid, val_pt_labs) in enumerate(val_dataset_loader):
                 
                 imgs = imgs.cuda()
-                val_grid_float = val_grid.to(torch.float32).cuda()
                 vox_label = val_vox_label.type(torch.LongTensor).cuda()
-                val_pt_labs = val_pt_labs.cuda()
+                predict_labels_vox = my_model(img=imgs, img_metas=img_metas)
 
-                predict_labels_vox, predict_labels_pts = my_model(img=imgs, img_metas=img_metas, points=val_grid_float)
-                if args.lovasz_input == 'voxel':
-                    lovasz_input = predict_labels_vox
-                    lovasz_label = vox_label
-                else:
-                    lovasz_input = predict_labels_pts
-                    lovasz_label = val_pt_labs
-                    
-                if args.ce_input == 'voxel':
-                    ce_input = predict_labels_vox
-                    ce_label = vox_label
-                else:
-                    ce_input = predict_labels_pts.squeeze(-1).squeeze(-1)
-                    ce_label = val_pt_labs.squeeze(-1)
                 
                 loss = lovasz_softmax(
-                    torch.nn.functional.softmax(lovasz_input, dim=1).detach(), 
-                    lovasz_label, ignore=ignore_label
-                ) + loss_func(ce_input.detach(), ce_label)
+                    torch.nn.functional.softmax(predict_labels_vox, dim=1).detach(), 
+                    vox_label, ignore=ignore_label
+                ) + loss_func(predict_labels_vox.detach(), vox_label)
                 
-                # predict_labels_pts = predict_labels_pts.squeeze(-1).squeeze(-1)
-                # predict_labels_pts = torch.argmax(predict_labels_pts, dim=1) # bs, n
-                # predict_labels_pts = predict_labels_pts.detach().cpu()
-                # val_pt_labs = val_pt_labs.squeeze(-1).cpu()
                 
                 predict_labels_vox = torch.argmax(predict_labels_vox, dim=1)
                 predict_labels_vox = predict_labels_vox.detach().cpu()
                 for count in range(len(img_metas)):
-                    # CalMeanIou_pts._after_step(predict_labels_pts[count], val_pt_labs[count])
                     CalMeanIou_vox._after_step(
                         predict_labels_vox[count].flatten(),
                         val_vox_label[count].flatten())
@@ -299,18 +254,14 @@ def main(local_rank, args):
                     logger.info('[EVAL] Epoch %d Iter %5d: Loss: %.3f (%.3f)'%(
                         epoch, i_iter_val, loss.item(), np.mean(val_loss_list)))
         
-        # val_miou_pts = CalMeanIou_pts._after_epoch()
+
         val_miou_vox = CalMeanIou_vox._after_epoch()
 
-        del val_vox_label, val_grid, val_grid_float
+        del val_vox_label
 
-        # if best_val_miou_pts < val_miou_pts:
-        #     best_val_miou_pts = val_miou_pts
         if best_val_miou_vox < val_miou_vox:
             best_val_miou_vox = val_miou_vox
 
-        # logger.info('Current val miou pts is %.3f while the best val miou pts is %.3f' %
-        #         (val_miou_pts, best_val_miou_pts))
         logger.info('Current val miou vox is %.3f while the best val miou vox is %.3f' %
                 (val_miou_vox, best_val_miou_vox))
         logger.info('Current val loss is %.3f' %
@@ -320,10 +271,8 @@ def main(local_rank, args):
 if __name__ == '__main__':
     # Training settings
     parser = argparse.ArgumentParser(description='')
-    parser.add_argument('--py-config', default='config/tpv_lidarseg.py')
-    parser.add_argument('--work-dir', type=str, default='./out/tpv_lidarseg')
-    parser.add_argument('--lovasz-input', type=str, default='points')
-    parser.add_argument('--ce-input', type=str, default='voxel')
+    parser.add_argument('--py-config', default='config/occupancy.py')
+    parser.add_argument('--work-dir', type=str, default='./out/occupancy')
     parser.add_argument('--resume-from', type=str, default='')
 
     args = parser.parse_args()
