@@ -1,5 +1,6 @@
 # 3Doccupancy
-3D occupancy 
+Generate occupancy label for secondary processing of nuscenes dataset
+
 # Dadaset
 <img src="./assets/demo.gif" width="696px">
 
@@ -7,7 +8,6 @@
 <img src="./assets/prediction.gif" width="696px">
 
 ## Evaluation Metrics
-
 
 ### mIoU
 
