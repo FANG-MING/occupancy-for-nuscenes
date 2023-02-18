@@ -37,7 +37,7 @@ class OccFormerHead(BaseModule):
         self._init_layers()
 
     def _init_layers(self):
-        self.bev_embedding_hw = nn.Embedding(self.bev_h * self.bev_w, self.embed_dims)
+        self.bev_embedding = nn.Embedding(self.bev_h * self.bev_w, self.embed_dims)
 
     def init_weights(self):
         self.transformer.init_weights()
