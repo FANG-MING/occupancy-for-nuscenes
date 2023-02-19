@@ -68,7 +68,13 @@ where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, fa
 
 | barrier | bicycle | bus | car | construction_vehicle | motorcycle | pedestrian | traffic_cone | trailer |  truck | driveable_surface | other_flat | sidewalk | terrain | manmade | vegetation |  miou |
 | -- | --|--| -- | --|--|--|--|--|--|--|--| --|----------------------|---|------ | -------------------------------- |
-| 15.12 | 8.55 | 28.78 | 28.06 | 10.36 | 13.42 | 9.22 | 4.57 | 17.38 | 22.56 | 48.38 | 22.57 | 29.11 | 25.81 | 16.22 |20.77 | 20.056  
+| 15.12 | 8.55 | 28.78 | 28.06 | 10.36 | 13.42 | 9.22 | 4.57 | 17.38 | 22.56 | 48.38 | 22.57 | 29.11 | 25.81 | 16.22 |20.77 | 20.056  |
+### Results in mini-val set
+
+| barrier | bicycle | bus | car | construction_vehicle | motorcycle | pedestrian | traffic_cone | trailer |  truck | driveable_surface | other_flat | sidewalk | terrain | manmade | vegetation |  miou |
+| -- | --|--| -- | --|--|--|--|--|--|--|--| --|----------------------|---|------ | -------------------------------- |
+| \ | 14.67 | 44.13 | 33.06 | 0.00 | 20.41 | 11.12 | 1.18 | 0.00 | 29.94 | 46.69 | 0.65 | 29.67 | 18.77 |19.14 | 23.96  | 19.559
+ |
 
 [**clik here download mini occupancy dataset for nuscenes v1.0-mini**](https://drive.google.com/file/d/1n48IIy1poOOusHujyGhuDx_QZkPeI6ki/view?usp=sharing)
 
