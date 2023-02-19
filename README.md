@@ -67,6 +67,8 @@ where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, fa
 
 [**clik here download mini occupancy dataset for nuscenes v1.0-mini**](https://drive.google.com/file/d/1n48IIy1poOOusHujyGhuDx_QZkPeI6ki/view?usp=sharing)
 
+The full dataset is coming soon.
+
 ## Acknowledgement
 
 Many thanks to these excellent open source projects:
