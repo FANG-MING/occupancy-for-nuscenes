@@ -31,7 +31,7 @@ In this project, we use the nuScenes dataset as the base, and for each frame, we
 
 4. Generate occupancy data
 ``` 
-python data data_converter.py --dataroot ./project/data/nuscenes/ --save_path ./project/data/nuscenes/occupancy/ 
+python data_converter.py --dataroot ./project/data/nuscenes/ --save_path ./project/data/nuscenes/occupancy/ 
 ```
 ## Train
 ```
