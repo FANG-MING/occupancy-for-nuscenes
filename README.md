@@ -8,6 +8,7 @@ In this project, we use the nuScenes dataset as the base, and for each frame, we
 
 # Dadaset
 <img src="./assets/demo.gif" width="696px">
+<img src="./assets/details.png" width="696px">
 
 # Prediction
 <img src="./assets/prediction.gif" width="696px">
