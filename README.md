@@ -6,7 +6,7 @@ Occupancy is not a new topic, and there have been some related studies before (M
 
 In this project, we use the nuScenes dataset as the base, and for each frame, we align the point cloud of the front and rear long-term windows to the current timestamp. Based on this dense point cloud, we can generate high-quality occupancy annotations. It is worth mentioning we perform independent alignment for dynamic objects and static objects.
 
-# Dadaset
+# Dataset
 
 
 
