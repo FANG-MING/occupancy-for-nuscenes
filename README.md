@@ -12,6 +12,32 @@ In this project, we use the nuScenes dataset as the base, and for each frame, we
 # Prediction
 <img src="./assets/prediction.gif" width="696px">
 
+## Installation
+1. Create conda environment with python version 3.8
+
+2. Install pytorch and torchvision with versions specified in requirements.txt
+
+3. Follow instructions in https://mmdetection3d.readthedocs.io/en/latest/getting_started.html#installation to install mmcv-full, mmdet, mmsegmentation and mmdet3d with versions specified in requirements.txt
+
+4. Install timm, numba and pyyaml with versions specified in requirements.txt
+
+## Preparing
+1. Download pretrain weights from https://github.com/zhiqi-li/storage/releases/download/v1.0/r101_dcn_fcos3d_pretrain.pth and put it in ckpts/
+
+2. Create soft link from data/nuscenes to your_nuscenes_path
+
+3. Follow the mmdet3d to process the data.
+
+4. Generate occupancy data
+``` 
+python data data_converter.py --dataroot ./project/data/nuscenes/ --save_path ./project/data/nuscenes/occupancy/ 
+```
+## Train
+```
+cd project
+bash launcher.sh config/occupancy.py out/occupancy 
+```
+
 # Model
 
 We designed a naive occupancy prediction model based on BEVFormer as the baseline.
