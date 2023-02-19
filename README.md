@@ -7,12 +7,9 @@ Occupancy is not a new topic, and there have been some related studies before (M
 In this project, we use the nuScenes dataset as the base, and for each frame, we align the point cloud of the front and rear long-term windows to the current timestamp. Based on this dense point cloud, we can generate high-quality occupancy annotations. It is worth mentioning we perform independent alignment for dynamic objects and static objects.
 
 # Dadaset
+https://user-images.githubusercontent.com/38872184/219941152-c5ae9206-3eee-4753-8d8c-835f7b0205cf.mp4
 <img src="./assets/demo.gif" width="696px">
 <img src="./assets/details.png" width="696px">
-
-
-https://user-images.githubusercontent.com/38872184/219941152-c5ae9206-3eee-4753-8d8c-835f7b0205cf.mp4
-
 
 The occupancy label no longer uses simple bounding boxes to represent objects, and each object has an occupancy label corresponding to its real shape.
 # Prediction
