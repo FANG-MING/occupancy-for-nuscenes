@@ -48,7 +48,7 @@ python data_converter.py --dataroot ./project/data/nuscenes/ --save_path ./proje
 cd project
 bash launcher.sh config/occupancy.py out/occupancy 
 ```
-[ckeckpoints](https://drive.google.com/file/d/1jY2JJcNzkfJd1Q7A42vLlT_Y23e_90kD/view?usp=sharing)
+[checkpoints](https://drive.google.com/file/d/1jY2JJcNzkfJd1Q7A42vLlT_Y23e_90kD/view?usp=sharing)
 # Model
 
 We designed a naive occupancy prediction model based on BEVFormer as the baseline.
