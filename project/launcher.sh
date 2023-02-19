@@ -4,4 +4,4 @@ WORKDIR=$2
 
 shift 2
 # export CUDA_VISIBLE_DEVICES=0
-python train_point.py --py-config $CONFIG --work-dir $WORKDIR "$@"
+python train.py --py-config $CONFIG --work-dir $WORKDIR "$@"
