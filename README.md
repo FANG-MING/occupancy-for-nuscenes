@@ -36,7 +36,6 @@ where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, fa
 Many thanks to these excellent open source projects:
 
 - [open-mmlab](https://github.com/open-mmlab)
-- [CenterPoint](https://github.com/tianweiy/CenterPoint)
 - [BEVFormer](https://github.com/fundamentalvision/BEVFormer)
 - [TPVFormer](https://github.com/wzzheng/TPVFormer)
 
