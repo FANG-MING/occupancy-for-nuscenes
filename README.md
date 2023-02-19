@@ -11,7 +11,8 @@ In this project, we use the nuScenes dataset as the base, and for each frame, we
 
 
 
-https://user-images.githubusercontent.com/27915819/219945924-cb646c65-cf71-4b4d-8e7c-7c64d43591dc.mp4
+https://user-images.githubusercontent.com/38872184/219947507-fda736e6-2925-4821-a530-9203c135a031.mp4
+
 
 
 
@@ -47,7 +48,7 @@ python data_converter.py --dataroot ./project/data/nuscenes/ --save_path ./proje
 cd project
 bash launcher.sh config/occupancy.py out/occupancy 
 ```
-
+[ckeckpoints](https://drive.google.com/file/d/1jY2JJcNzkfJd1Q7A42vLlT_Y23e_90kD/view?usp=sharing)
 # Model
 
 We designed a naive occupancy prediction model based on BEVFormer as the baseline.
