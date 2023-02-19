@@ -52,16 +52,16 @@ class OccFormerHead(BaseModule):
         """
         bs = mlvl_feats[0].shape[0]
         dtype = mlvl_feats[0].dtype
-        bev_queries_hw = self.bev_embedding_hw.weight.to(dtype)
+        bev_queries = self.bev_embedding.weight.to(dtype)
 
         bev_mask = self.bev_mask.expand(bs, -1, -1)
-        bev_pos_hw = self.positional_encoding(bev_mask).to(dtype)
-        bev_pos_hw = bev_pos_hw.reshape(bs, self.bev_h*self.bev_w, -1).permute(1, 0, 2)
+        bev_pos = self.positional_encoding(bev_mask).to(dtype)
+        bev_pos = bev_pos.reshape(bs, self.bev_h*self.bev_w, -1).permute(1, 0, 2)
         return self.transformer(
             mlvl_feats,
-            bev_queries_hw,
+            bev_queries,
             self.bev_h,
             self.bev_w,
-            query_pos=bev_pos_hw,
+            query_pos=bev_pos,
             img_metas=img_metas,
         )

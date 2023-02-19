@@ -9,6 +9,7 @@ dataset_params = dict(
     ignore_label = 0,
     fill_label = 17,
     fixed_volume_space = True,
+    occupancy_root="./data/nuscenes/occupancy",
     label_mapping = "./config/label_mapping/nuscenes-noIgnore.yaml",
     max_volume_space = [51.2, 51.2, 3],
     min_volume_space = [-51.2, -51.2, -5],

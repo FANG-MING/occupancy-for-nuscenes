@@ -7,7 +7,7 @@ from mmcv.image.io import imread
 
 class SemKITTI_nusc(data.Dataset):
     def __init__(self, data_path, imageset='train', label_mapping="nuscenes.yaml",
-                  nusc=None, occupancy_root='./data/nuscenes/samples/occupancy'):
+                   occupancy_root='./data/nuscenes/occupancy'):
         with open(imageset, 'rb') as f:
             data = pickle.load(f)
 
@@ -17,7 +17,7 @@ class SemKITTI_nusc(data.Dataset):
 
         self.nusc_infos = data['infos']
         self.data_path = data_path
-        # self.nusc = nusc
+        self.occupancy_root = occupancy_root
 
     def __len__(self):
         'Denotes the total number of samples'
@@ -36,7 +36,7 @@ class SemKITTI_nusc(data.Dataset):
                 imread(filename, 'unchanged').astype(np.float32)
             )
 
-        lidar_path = info['lidar_path'].replace('./data/nuscenes/samples/LIDAR_TOP', '/mount/dnn_data/occupancy/occupancy')
+        lidar_path = info['lidar_path'].replace('./data/nuscenes/samples/LIDAR_TOP', self.occupancy_root)
         points = np.fromfile(lidar_path, dtype=np.float16).reshape([-1, 5])
         points_label = points[:, 4].reshape([-1, 1]).astype(np.int8)
         points_label = np.vectorize(self.learning_map.__getitem__)(points_label)

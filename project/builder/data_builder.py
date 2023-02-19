@@ -16,12 +16,12 @@ def build(dataset_config,
     train_imageset = train_dataloader_config["imageset"]
     val_imageset = val_dataloader_config["imageset"]
     label_mapping = dataset_config["label_mapping"]
+    occupancy_root=dataset_config['occupancy_root']
 
-    nusc = None
     train_pt_dataset = SemKITTI_nusc(data_path, imageset=train_imageset,
-                                     label_mapping=label_mapping, nusc=nusc)
+                                     label_mapping=label_mapping, occupancy_root=occupancy_root)
     val_pt_dataset = SemKITTI_nusc(data_path, imageset=val_imageset,
-                                   label_mapping=label_mapping, nusc=nusc)
+                                   label_mapping=label_mapping, occupancy_root=occupancy_root)
 
     train_dataset = tpvformer_dataset_nuscenes(
         train_pt_dataset,

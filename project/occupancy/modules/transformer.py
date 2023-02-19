@@ -64,7 +64,7 @@ class OccPerceptionTransformer(BaseModule):
         """
 
         bs = mlvl_feats[0].size(0) # bs, num_cam, C, h, w
-        bev_queries_hw = bev_queries.unsqueeze(1).repeat(1, bs, 1)
+        bev_queries = bev_queries.unsqueeze(1).repeat(1, bs, 1)
 
         feat_flatten = []
         spatial_shapes = []
@@ -88,7 +88,7 @@ class OccPerceptionTransformer(BaseModule):
         feat_flatten = feat_flatten.permute(
             0, 2, 1, 3)  # (num_cam, H*W, bs, embed_dims)
         bev_embed = self.encoder(
-            bev_queries_hw,
+            bev_queries,
             feat_flatten,
             feat_flatten,
             bev_h=bev_h,
