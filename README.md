@@ -52,6 +52,10 @@ bash launcher.sh config/occupancy.py out/occupancy
 cd project
 python eval.py --py-config config/occupancy.py --ckpt-path ckpts/occupancyNet.pth
 ```
+## visualization
+```
+python utils/vis_pts.py --pts-path $LIDARPATH
+```
 
 # Model
 
