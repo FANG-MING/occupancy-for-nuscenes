@@ -10,7 +10,9 @@ In this project, we use the nuScenes dataset as the base, and for each frame, we
 
 
 
-https://user-images.githubusercontent.com/27915819/219941294-5aad9e60-9fe5-48a0-a533-1e398bce064f.mp4
+
+https://user-images.githubusercontent.com/27915819/219945924-cb646c65-cf71-4b4d-8e7c-7c64d43591dc.mp4
+
 
 
 <img src="./assets/details.png" width="696px">
