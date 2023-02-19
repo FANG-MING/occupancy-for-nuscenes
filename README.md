@@ -23,7 +23,7 @@ $$
 $$
 
 where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, false positive, and false negative predictions for class $c_i$.
-### Results in validate
+### Results in val set
 
 | barrier | bicycle | bus | car | construction_vehicle | motorcycle | pedestrian | traffic_cone | trailer |  truck | driveable_surface | other_flat | sidewalk | terrain | manmade | vegetation |  miou |
 | -- | --|--| -- | --|--|--|--|--|--|--|--| --|----------------------|---|------ | -------------------------------- |
