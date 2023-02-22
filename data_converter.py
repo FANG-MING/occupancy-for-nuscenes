@@ -9,6 +9,7 @@ import os.path as osp
 from functools import partial
 from utils.points_process import *
 from sklearn.neighbors import KDTree
+import open3d as o3d
 import argparse
 INTER_STATIC_POINTS = {}
 INTER_STATIC_POSE = {}
@@ -19,12 +20,12 @@ def parse_args():
     parser.add_argument(
         '--dataroot',
         type=str,
-        default='/home/lzq/',
+        default='./project/data/nuscenes/',
         help='specify the root path of dataset')
     parser.add_argument(
         '--save_path',
         type=str,
-        default='/home/lzq/occupancy2/',
+        default='./project/data/nuscenes//occupancy2/',
         required=False,
         help='specify sweeps of lidar per example')
     parser.add_argument(
@@ -439,13 +440,13 @@ def generate_occupancy_data(nusc: NuScenes, cur_sample, num_sweeps, save_path='.
     new_points.tofile(save_path +filename)
     return pc.points, lidar_seg
 
-def convert2occupy(dataroot = './',
-                        save_path='../occupancy3/', num_sweeps=10,):
+def convert2occupy(dataroot,
+                        save_path, num_sweeps=10,):
     if not os.path.exists(save_path):
         os.mkdir(save_path)
     cnt = 0
-    nusc = NuScenes(version='v1.0-mini', dataroot=dataroot, verbose=True)
-    for scene in nusc.scene[0:1]:
+    nusc = NuScenes(version='v1.0-trainval', dataroot=dataroot, verbose=True)
+    for scene in nusc.scene:
         INTER_STATIC_POINTS.clear()
         INTER_STATIC_LABEL.clear()
         INTER_STATIC_POSE.clear()
