@@ -9,7 +9,6 @@ import os.path as osp
 from functools import partial
 from utils.points_process import *
 from sklearn.neighbors import KDTree
-import open3d as o3d
 import argparse
 INTER_STATIC_POINTS = {}
 INTER_STATIC_POSE = {}
@@ -20,12 +19,12 @@ def parse_args():
     parser.add_argument(
         '--dataroot',
         type=str,
-        default='/mount/dnn_data/nuscenes3/',
+        default='/home/lzq/',
         help='specify the root path of dataset')
     parser.add_argument(
         '--save_path',
         type=str,
-        default='./occupancy/',
+        default='/home/lzq/occupancy2/',
         required=False,
         help='specify sweeps of lidar per example')
     parser.add_argument(
@@ -51,8 +50,7 @@ def align_dynamic_thing(box, prev_instance_token, nusc, prev_points, ego_frame_i
         
         box_mask = points_in_box(box,
                                     prev_points[:3, :])
-        box_points = prev_points[:, box_mask]
-
+        box_points = prev_points[:, box_mask].copy()
         prev_bbox_center = box.center
         prev_rotate_matrix = box.rotation_matrix
 
@@ -63,7 +61,7 @@ def align_dynamic_thing(box, prev_instance_token, nusc, prev_points, ego_frame_i
         box_points = rotate(box_points, ego_frame_info['boxes'][target].rotation_matrix, center=ego_boxes_center)
         box_points_mask = filter_points_in_ego(box_points, ego_frame_info, prev_instance_token)
         box_points = box_points[:, box_points_mask]
-        box_label = np.full_like(box_points[0], nusc.lidarseg_name2idx_mapping[box.name])
+        box_label = np.full_like(box_points[0], nusc.lidarseg_name2idx_mapping[box.name]).copy()
         return box_points, box_label, box_mask
 
 
@@ -124,6 +122,7 @@ def get_intermediate_frame_info(nusc: NuScenes, prev_frame_info, lidar_rec, flag
     lidar_path, boxes, _ = nusc.get_sample_data(lidar_rec['token'])
     intermediate_frame_info['boxes'] = boxes
     intermediate_frame_info['instance_tokens'] = instance_tokens
+    assert len(boxes) == len(instance_tokens) , print('erro')
     return intermediate_frame_info
 
 def intermediate_keyframe_align(nusc: NuScenes, prev_frame_info, ego_frame_info, cur_sample_points, cur_sample_labels):
@@ -133,6 +132,10 @@ def intermediate_keyframe_align(nusc: NuScenes, prev_frame_info, ego_frame_info,
     '''
     prev_frame_info['pc'].points = remove_close(prev_frame_info['pc'].points, (1, 2))
     pcs, labels, masks = multi_apply(align_dynamic_thing, prev_frame_info['boxes'], prev_frame_info['instance_tokens'], nusc=nusc, prev_points=prev_frame_info['pc'].points, ego_frame_info=ego_frame_info)
+
+    # for box, instance_token in zip(prev_frame_info['boxes'], prev_frame_info['instance_tokens']):
+    #     align_dynamic_thing(box, instance_token, nusc=nusc, prev_points=prev_frame_info['pc'].points, ego_frame_info=ego_frame_info)
+
     masks = np.stack(masks, axis=-1)
     masks = masks.sum(axis=-1)
     masks = ~(masks>0)
@@ -142,14 +145,14 @@ def intermediate_keyframe_align(nusc: NuScenes, prev_frame_info, ego_frame_info,
     if  prev_frame_info['lidar_token'] in INTER_STATIC_POINTS:
         static_points = INTER_STATIC_POINTS[prev_frame_info['lidar_token']].copy()
         static_points = prev2ego(static_points, INTER_STATIC_POSE[prev_frame_info['lidar_token']], ego_frame_info)
-        static_points_label = INTER_STATIC_LABEL[prev_frame_info['lidar_token']]
+        static_points_label = INTER_STATIC_LABEL[prev_frame_info['lidar_token']].copy()
         assert static_points_label.shape[0] == static_points.shape[1], f"{static_points_label.shape, static_points.shape}"
     else:
         static_points = prev2ego(prev_frame_info['pc'].points, prev_frame_info, ego_frame_info)
         static_points_label = np.full_like(static_points[0], -1)
         static_points, static_points_label = search_label(cur_sample_points, cur_sample_labels, static_points, static_points_label)
-        INTER_STATIC_POINTS[prev_frame_info['lidar_token']] = static_points
-        INTER_STATIC_LABEL[prev_frame_info['lidar_token']] = static_points_label
+        INTER_STATIC_POINTS[prev_frame_info['lidar_token']] = static_points.copy()
+        INTER_STATIC_LABEL[prev_frame_info['lidar_token']] = static_points_label.copy()
         INTER_STATIC_POSE[prev_frame_info['lidar_token']] = {'cs_record': ego_frame_info['cs_record'],
                                                             'pose_record': ego_frame_info['pose_record'],
                                                             }
@@ -198,7 +201,7 @@ def prev2ego(points, prev_frame_info, income_frame_info, velocity=None, time_gap
     ego_pose_record = income_frame_info['pose_record']
     points = transform(points, Quaternion(ego_pose_record['rotation']).rotation_matrix, np.array(ego_pose_record['translation']), inverse=True)
     points = transform(points, Quaternion(ego_cs_record['rotation']).rotation_matrix, np.array(ego_cs_record['translation']), inverse=True)
-    return points
+    return points.copy()
 
 
 def filter_points_in_ego(points, frame_info, instance_token):
@@ -229,9 +232,9 @@ def keyframe_align(prev_frame_info, ego_frame_info):
     static_points = prev_frame_info['pc'].points[:, static_mask]
     static_seg = lidarseg_prev[static_mask]
     static_points = prev2ego(static_points, prev_frame_info, ego_frame_info)
-    pcs.append(static_points)
-    pc_segs.append(static_seg)
-    prev_frame_info['pc'].points = prev_frame_info['pc'].points[:, ~static_mask]
+    pcs.append(static_points.copy())
+    pc_segs.append(static_seg.copy())
+    prev_frame_info['pc'].points = prev_frame_info['pc'].points[:, ~static_mask].copy()
     lidarseg_prev = lidarseg_prev[~static_mask]
     # translation prev moving points to ego
     for index_anno in range(len(prev_frame_info['boxes'])):
@@ -239,8 +242,8 @@ def keyframe_align(prev_frame_info, ego_frame_info):
             continue
         box_mask = points_in_box(prev_frame_info['boxes'][index_anno],
                                     prev_frame_info['pc'].points[:3, :])
-        box_points = prev_frame_info['pc'].points[:, box_mask]
-        boxseg_prev = lidarseg_prev[box_mask]
+        box_points = prev_frame_info['pc'].points[:, box_mask].copy()
+        boxseg_prev = lidarseg_prev[box_mask].copy()
         prev_bbox_center = prev_frame_info['boxes'][index_anno].center
 
         prev_rotate_matrix = prev_frame_info['boxes'][index_anno].rotation_matrix
@@ -336,7 +339,7 @@ def generate_occupancy_data(nusc: NuScenes, cur_sample, num_sweeps, save_path='.
 
     while count_next_frame > 0:
         
-        income_info = get_frame_info(frame =next_frame, nusc=nusc)
+        income_info = get_frame_info(frame=next_frame, nusc=nusc)
         prev_info = income_info
         next_frame =  nusc.get('sample', next_frame['prev'])
         pc_points, pc_seg = keyframe_align(prev_info, cur_sample_info)
@@ -436,22 +439,22 @@ def generate_occupancy_data(nusc: NuScenes, cur_sample, num_sweeps, save_path='.
     new_points.tofile(save_path +filename)
     return pc.points, lidar_seg
 
-def convert2occupy(dataroot = '../nuscenes3/',
-                        save_path='./occupancy/', num_sweeps=10,):
+def convert2occupy(dataroot = './',
+                        save_path='../occupancy3/', num_sweeps=10,):
     if not os.path.exists(save_path):
         os.mkdir(save_path)
     cnt = 0
-    nusc = NuScenes(version='v1.0-trainval', dataroot=dataroot, verbose=True)
-    for scene in nusc.scene:
+    nusc = NuScenes(version='v1.0-mini', dataroot=dataroot, verbose=True)
+    for scene in nusc.scene[0:1]:
         INTER_STATIC_POINTS.clear()
         INTER_STATIC_LABEL.clear()
         INTER_STATIC_POSE.clear()
         sample_token = scene['first_sample_token']
         cur_sample = nusc.get('sample', sample_token)
         while True:
-            generate_occupancy_data(nusc, cur_sample, num_sweeps, save_path=save_path)
             cnt += 1
             print(cnt)
+            generate_occupancy_data(nusc, cur_sample, num_sweeps, save_path=save_path)
             if cur_sample['next'] == '':
                 break
             cur_sample = nusc.get('sample', cur_sample['next'])
