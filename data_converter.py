@@ -7,7 +7,7 @@ from nuscenes.utils.data_io import load_bin_file
 from nuscenes.utils.geometry_utils import points_in_box
 import os.path as osp
 from functools import partial
-from utils.points_processoint import *
+from utils.points_process import *
 from sklearn.neighbors import KDTree
 import open3d as o3d
 import argparse

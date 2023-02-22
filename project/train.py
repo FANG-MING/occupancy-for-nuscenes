@@ -127,7 +127,7 @@ def main(local_rank, args):
     
     # resume and load
     epoch = 0
-    best_val_miou_vox = 0, 0
+    best_val_miou_vox = 0
     global_iter = 0
 
     cfg.resume_from = ''
