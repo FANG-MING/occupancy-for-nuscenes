@@ -86,7 +86,7 @@ where $TP_c$ , $FP_c$ , and $FN_c$ correspond to the number of true positive, fa
 | -- | --|--| -- | --|--|--|--|--|--|--|--| --|----------------------|---|------ | -------------------------------- |
 | \ | 14.67 | 44.13 | 33.06 | 0.00 | 20.41 | 11.12 | 1.18 | 0.00 | 29.94 | 46.69 | 0.65 | 29.67 | 18.77 |19.14 | 23.96  | 19.559 |
 
-[**clik here download mini occupancy dataset for nuscenes v1.0-mini**](https://drive.google.com/file/d/1n48IIy1poOOusHujyGhuDx_QZkPeI6ki/view?usp=sharing)
+[**clik here download mini occupancy dataset for nuscenes v1.0-mini**](https://drive.google.com/file/d/1IWRDyhiRGt_08BmOqN3YPr7W23n2w3TI/view?usp=sharing)
 
 The full dataset is coming soon.
 
